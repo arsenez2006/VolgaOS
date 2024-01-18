@@ -1,0 +1,3 @@
+[submodule "VolgaBL"]
+	path = VolgaBL
+	url = https://github.com/arsenez2006/VolgaBL.git
