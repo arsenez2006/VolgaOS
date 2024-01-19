@@ -1,6 +1,7 @@
 # Executables
 set(DD_PATH "" CACHE FILEPATH "Full path to DD executable")
 set(SFDISK_PATH "" CACHE FILEPATH "Full path to SFDISK executable")
+set(TAR_PATH "" CACHE FILEPATH "Full path to TAR executable")
 
 # General configuration
 option(BUILD_DOCS "Build documentation (requires doxygen)" OFF)

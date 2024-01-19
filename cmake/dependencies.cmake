@@ -11,6 +11,10 @@ function(find_dependencies)
         set(SFDISK ${SFDISK_PATH} CACHE FILEPATH "Program path.")
     endif()
 
+    if(TAR_PATH)
+        set(TAR ${TAR_PATH} CACHE FILEPATH "Program path.")
+    endif()
+
     # Find DD
     if(NOT DD)
         message(CHECK_START "Detecting DD executable")
@@ -34,6 +38,19 @@ function(find_dependencies)
             message(FATAL_ERROR "Failed to find SFDISK executable. Use SFDISK_PATH.")
         else()
             message(CHECK_PASS ${SFDISK})
+        endif()
+    endif()
+
+    # Find TAR
+    if(NOT TAR)
+        message(CHECK_START "Detecting TAR executable")
+        find_program(TAR tar)
+
+        if(NOT TAR)
+            message(CHECK_FAIL "failed.")
+            message(FATAL_ERROR "Failed to find TAR executable. Use TAR_PATH.")
+        else()
+            message(CHECK_PASS ${TAR})
         endif()
     endif()
 endfunction(find_dependencies)

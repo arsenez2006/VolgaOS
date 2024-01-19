@@ -4,12 +4,17 @@ project(VolgaOS)
 include(cmake/options.cmake)
 include(cmake/dependencies.cmake)
 include(cmake/create_image.cmake)
-include(ExternalProject)
 
+# RAMFS temporary dir
+set(RAMFS_DIR "${CMAKE_BINARY_DIR}/ramfs")
+
+# Find dependencies
 find_dependencies()
 
+# Create OS image
 create_image()
 
+# Import legacy bootloader
 if(VLGBL_LEGACY)
     include(VolgaBL/import.cmake)
     import_VolgaBL(PATH ${CMAKE_SOURCE_DIR}/VolgaBL)
@@ -22,4 +27,24 @@ if(VLGBL_LEGACY)
     list(APPEND OS_TARGETS VolgaBL-write)
 endif()
 
+# Import kernel
+include(VolgaKernel/import.cmake)
+import_VolgaKernel(PATH "${CMAKE_SOURCE_DIR}/VolgaKernel" OUTPUT ${RAMFS_DIR})
+list(APPEND RAMFS_TARGETS ${VOLGAKERNEL_TARGET})
+
+# Generate RAMFS image
+set(RAMFS_IMAGE "${CMAKE_BINARY_DIR}/ramfs.tar")
+add_custom_target(create-ramfs
+    COMMAND ${TAR} cvf ${RAMFS_IMAGE} -C ${CMAKE_BINARY_DIR} ramfs
+    DEPENDS ${RAMFS_TARGETS}
+)
+
+# Write RAMFS image
+add_custom_target(write-ramfs
+    COMMAND ${DD} if=${RAMFS_IMAGE} of=${OUTPUT_IMAGE} bs=${OUTPUT_KERNEL_BS} count=${OUTPUT_KERNEL_SIZE} seek=${OUTPUT_KERNEL_OFFSET} conv=notrunc
+    DEPENDS create-ramfs
+)
+list(APPEND OS_TARGETS write-ramfs)
+
+# OS image
 add_custom_target(${PROJECT_NAME} ALL DEPENDS ${OS_TARGETS})
